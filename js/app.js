@@ -7,13 +7,16 @@ if('serviceWorker'in navigator)addEventListener('load',()=>navigator.serviceWork
 const MODES={light:'',dark:'dark',sunlight:'sunlight-mode',battery:'battery-saver-mode'},TC={light:'#0b2a5b',dark:'#0a1226',sunlight:'#ffffff',battery:'#000000'};
 function mode(m){document.body.className=MODES[m];$('meta[name=theme-color]').content=TC[m];set('mode',m);document.querySelectorAll('[data-mode]').forEach(b=>b.setAttribute('aria-pressed',b.dataset.mode===m))}
 document.querySelectorAll('[data-mode]').forEach(b=>b.onclick=()=>mode(b.dataset.mode));mode(get('mode','light'));
+const toast=t=>{const e=$('#toast');e.textContent=t;e.classList.add('on');clearTimeout(toast.t);toast.t=setTimeout(()=>e.classList.remove('on'),2200)};
+document.addEventListener('click',e=>{const a=e.target.closest('a[href^="tel:"]');if(a)toast('Dialing '+(a.textContent.trim()||a.getAttribute('href').slice(4))+'…')});
 // CPR checklist
 const done=get('cpr',[]);$('#cpr').innerHTML=CPR.map((c,i)=>`<label class="i"><input type="checkbox" style="width:auto" data-i="${i}" ${done.includes(i)?'checked':''}><span><b>${c[0]}:</b> ${c[1]}</span></label>`).join('');
 $('#cpr').onchange=e=>{const a=[...document.querySelectorAll('#cpr input:checked')].map(x=>+x.dataset.i);set('cpr',a);$('#prog').textContent=a.length+'/'+CPR.length+' done'};$('#prog').textContent=done.length+'/'+CPR.length+' done';
+$('#reset').onclick=()=>$('#mreset').classList.add('on');$('#yes').onclick=()=>{set('cpr',[]);document.querySelectorAll('#cpr input').forEach(x=>x.checked=false);$('#prog').textContent='0/'+CPR.length+' done';$('#mreset').classList.remove('on');toast('Checklist reset')};
 // Circulars
 $('#circ').innerHTML=CIRCULARS.map(c=>`<details><summary>${c.t}</summary><ul>${c.b.map(x=>`<li>${x}</li>`).join('')}</ul></details>`).join('');
 // Directory search
-function draw(q){const r=INSTITUTIONS.filter(i=>(i.name+i.type).toLowerCase().includes(q.toLowerCase()));$('#dir').innerHTML=r.map(i=>`<details><summary>${i.name} <span class="m">· ${i.type}</span></summary><p>${i.how}</p><a href="${DIRECTORY}">BSP directory</a></details>`).join('')||'<p class="m">No match.</p>'}
+function draw(q){const r=INSTITUTIONS.filter(i=>(i.name+i.type).toLowerCase().includes(q.toLowerCase()));$('#dir').innerHTML=r.map(i=>`<details><summary>${i.name} <span class="m">· ${i.type}</span></summary><p>${i.how}</p><a href="${DIRECTORY}">BSP directory</a></details>`).join('')||'<p class="m">No institutions found. <a href="'+DIRECTORY+'">Check the BSP Consumer Assistance Directory</a></p>'}
 $('#q').oninput=e=>draw(e.target.value);draw('');
 // Lockdown
 $('#steps').innerHTML=LOCKDOWN.map(s=>`<li>${s}</li>`).join('');
@@ -22,7 +25,7 @@ document.querySelectorAll('.close').forEach(b=>b.onclick=()=>b.closest('.modal')
 if(location.hash==='#lockdown')M('#mlock').add('on');
 const ios=/iphone|ipad/i.test(navigator.userAgent);$('#hometext').textContent=ios?'In Safari tap Share, then "Add to Home Screen".':'In Chrome tap the menu (⋮), then "Install app" or "Add to Home screen".';
 // Share
-async function share(text){const d={title:'BantayKaban',text,url:'https://githubbest729.github.io/bantaykaban-pwa/'};try{if(navigator.share)await navigator.share(d);else{await navigator.clipboard.writeText(text+' '+d.url);alert('Copied to clipboard')}}catch(e){}}
+async function share(text){const d={title:'BantayKaban',text,url:'https://githubbest729.github.io/bantaykaban-pwa/'};try{if(navigator.share)await navigator.share(d);else{await navigator.clipboard.writeText(text+' '+d.url);toast('Link copied to clipboard!')}}catch(e){if(e.name!=='AbortError')toast('Could not share')}}
 $('#share').onclick=()=>share('Scam emergency? Call CICC 1326, then BSP Online Buddy (BOB). Check the BantayKaban checklist:');
 $('#sharel').onclick=()=>share('Emergency lockdown steps:\n'+LOCKDOWN.map((s,i)=>(i+1)+'. '+s).join('\n'));
 })();
