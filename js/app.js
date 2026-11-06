@@ -12,7 +12,7 @@ function toast(t){const e=$('#toast');e.textContent=t;e.classList.add('on');clea
 async function copy(text,msg){try{await navigator.clipboard.writeText(text)}catch(e){const a=document.createElement('textarea');a.value=text;document.body.appendChild(a);a.select();try{document.execCommand('copy')}catch(_){}a.remove()}toast(msg||'✓ Copied to clipboard')}
 // Universal dialer: mobile = native tel:, desktop = copy number + pill toast
 const coarse=matchMedia('(pointer:coarse)').matches;
-document.addEventListener('click',e=>{const a=e.target.closest('a[href^="tel:"]');if(!a)return;const n=a.dataset.n||a.getAttribute('href').slice(4);if(coarse)toast('Dialing '+n+'…');else{e.preventDefault();copy(n,'Copied '+n+' to clipboard')}});
+document.addEventListener('click',e=>{const a=e.target.closest('a[href^="tel:"]');if(!a)return;const n=a.dataset.n||a.getAttribute('href').slice(4);if(coarse)toast('Dialing '+n+'…');else{e.preventDefault();copy(n,a.dataset.msg||'Copied '+n+' to clipboard')}});
 // Dynamic island
 const isl=$('#isl'),ib=$('#islb'),id_=$('#isld');
 function island_(o){isl.classList.toggle('open',o);ib.setAttribute('aria-expanded',o);id_.hidden=!o}
@@ -43,8 +43,8 @@ const HOT={};
 const script=n=>`URGENT: My ${n} account may be compromised. Please freeze my account/card now and log my fraud report.`;
 function draw(q){const r=INSTITUTIONS.filter(i=>(i.name+' '+i.type).toLowerCase().includes(q.trim().toLowerCase()));
 $('#dir').innerHTML=r.length?r.map((i,n)=>{const m=META[i.name]||['#1a5cff','',DIRECTORY],h=HOT[i.name],x=EXTRA[i.name];
-const fz=h?`<a class="btn d tel" href="tel:${h[0]}" data-n="${esc(h[1])}">Freeze Hotline</a>`:`<button class="d" data-t="h${n}" data-s="${esc(i.name)}" aria-expanded="false">Freeze Hotline</button>`;
-return `<article class="bank-card" style="--c:${m[0]}"><div class="bh"><span class="gl"><svg class="ic"><use href="#i-${glyph(i.type)}"/></svg></span><div><h3>${esc(i.name)}</h3><div class="pills"><span class="tag-pill">${esc(i.type)}</span>${x?`<span class="tag-pill">${x}</span>`:''}</div></div></div><p id="h${n}" hidden>${esc(i.how)}</p><div class="acts">${fz}<a class="btn pill" href="${m[2]}" target="_blank" rel="noopener">Official Site</a><button class="gh" data-c="${esc(i.name)}">Copy Details</button></div></article>`}).join(''):`<p class="m full">No institutions found. <a href="${DIRECTORY}">Check the BSP Consumer Assistance Directory</a></p>`}
+const fz=h?`<a class="btn d tel" href="tel:${h[0]}" data-n="${esc(h[1])}" data-msg="Copied hotline to clipboard">Freeze Hotline</a>`:`<button class="d" data-t="h${n}" data-s="${esc(i.name)}" aria-expanded="false">Freeze Hotline</button>`;
+return `<article class="bank-card" style="--c:${m[0]}"><div class="bh"><span class="gl"><svg class="ic"><use href="#i-${glyph(i.type)}"/></svg></span><div><h3>${esc(i.name)}</h3><div class="pills"><span class="tag-pill">${esc(i.type)}</span>${x?`<span class="tag-pill">${x}</span>`:''}</div></div></div><p id="h${n}" hidden>${esc(i.how)} <a class="tel" href="tel:1326" data-n="1326" data-msg="Copied hotline to clipboard">Call CICC 1326</a></p><div class="acts">${fz}<a class="btn pill official-site-btn" href="${m[2]}" target="_blank" rel="noopener">Official Site</a><button class="gh" data-c="${esc(i.name)}">Copy Details</button></div></article>`}).join(''):`<p class="m full">No institutions found. <a href="${DIRECTORY}">Check the BSP Consumer Assistance Directory</a></p>`}
 $('#q').oninput=e=>draw(e.target.value);draw('');
 $('#dir').onclick=e=>{const b=e.target.closest('[data-t]'),c=e.target.closest('[data-c]');
 if(b){const p=$('#'+b.dataset.t);p.hidden=!p.hidden;b.setAttribute('aria-expanded',!p.hidden);if(!p.hidden)copy(script(b.dataset.s),'Freeze request copied. Call the number on your card.')}
@@ -69,10 +69,11 @@ if(bank&&/^(\+?63|0)9\d{9}$/.test(n)){s+=2;F.push('A bank or e-wallet is named b
 if(bank&&/https?:\/\//i.test(t)&&!F.some(f=>/imitates/.test(f))){s+=1;F.push('Bank or e-wallet name plus a link. Open the official app instead.')}
 return{s,F,R}}
 function mark(t,R){R.sort((a,b)=>a[0]-b[0]);const M=[];R.forEach(r=>{const l=M[M.length-1];if(l&&r[0]<=l[1])l[1]=Math.max(l[1],r[1]);else M.push(r.slice())});let o='',p=0;M.forEach(([a,b])=>{o+=esc(t.slice(p,a))+'<mark>'+esc(t.slice(a,b))+'</mark>';p=b});return o+esc(t.slice(p))}
-$('#chk').onclick=()=>{const t=$('#scam').value.trim(),v=$('#verdict');if(!t){v.innerHTML='<p class="m">Paste a message or link first.</p>';return}
+$('#chk').onclick=()=>{const t=$('#scam').value.trim(),v=$('#verdict');if(!t){v.innerHTML='';serr(true);return}serr(false);
 const{s,F,R}=scan($('#snd').value,t),k=s>=5?['bad','High Risk']:s>=2?['warn','Suspicious']:['ok','Clean Pattern'];
 v.innerHTML=`<div class="v ${k[0]}"><span class="badge">${k[1]}</span>${F.length?'<ul>'+F.map(f=>`<li>${esc(f)}</li>`).join('')+'</ul>':'<p class="m">No known scam patterns found. This is a pattern check, not a guarantee. Never share OTPs.</p>'}${R.length?`<div class="hl">${mark(t,R)}</div>`:''}${s>=2?'<p class="m">Do not click or reply. Report to CICC 1326 or cicc.gov.ph/report.</p>':''}</div>`};
-$('#clr').onclick=()=>{$('#scam').value='';$('#snd').value='';$('#verdict').innerHTML=''};
+const serr=on=>{$('#serr').hidden=!on};$('#scam').addEventListener('input',()=>serr(false));
+$('#clr').onclick=()=>{serr(false);$('#scam').value='';$('#snd').value='';$('#verdict').innerHTML=''};
 // Sheets
 function open(id){$(id).classList.add('on');document.body.style.overflow='hidden'}
 function close(id){(id?[$(id)]:$$('.sheet.on')).forEach(s=>s.classList.remove('on'));if(!$$('.sheet.on').length)document.body.style.overflow=''}
@@ -87,12 +88,18 @@ const STEPS=[
 $('#steps').innerHTML=STEPS.map((s,i)=>`<li><b>${esc(s.t)}</b><span class="m">${esc(s.d)}</span><div class="row"><button data-c="${i}">Copy</button>${s.a?`<a class="btn p ${s.a[1].startsWith('tel')?'tel':''}" href="${s.a[1]}" data-n="1326" ${s.a[1][0]==='#'?'data-go':''}>${s.a[0]}</a>`:''}</div></li>`).join('');
 $('#steps').onclick=e=>{const b=e.target.closest('[data-c]');if(b)copy(STEPS[b.dataset.c].c,'✓ Copied for quick escalation');if(e.target.closest('[data-go]'))close()};
 $('#copyall').onclick=()=>copy(STEPS.map((s,i)=>(i+1)+'. '+s.t+': '+s.d).join('\n'),'✓ All steps copied');
-$('#lock').onclick=()=>open('#mlock');$('#lock2').onclick=()=>{island_(false);open('#mlock')};if(location.hash==='#lockdown')open('#mlock');
-// Install guide
-const ios=/iphone|ipad/i.test(navigator.userAgent);let dp=null;
-$('#hometext').textContent=ios?'Tap Share in Safari, then "Add to Home Screen".':'Use your browser menu, then "Install app" or "Add to Home screen".';
-addEventListener('beforeinstallprompt',e=>{e.preventDefault();dp=e;$('#install').hidden=false});
-$('#install').onclick=()=>{if(dp){dp.prompt();dp=null;$('#install').hidden=true}};$('#dispb').onclick=()=>open('#mdisp');
+$('#lock').onclick=()=>open('#mlock');$('#lock2').onclick=()=>{island_(false);open('#mlock')};function route(){const h=location.hash;if(h==='#emergency'||h==='#lockdown')open('#mlock');else if(h==='#banks'){const d=$('#dir-s');if(d)d.scrollIntoView()}}
+route();addEventListener('hashchange',route);
+// Install: native prompt if available, else guided modal
+const ios=/iphone|ipad|ipod/i.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);let deferredPrompt=null;
+window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferredPrompt=e});
+addEventListener('appinstalled',()=>{deferredPrompt=null;toast('App installed')});
+$('#install').onclick=async()=>{
+ if(matchMedia('(display-mode: standalone)').matches||navigator.standalone){toast('Already installed');return}
+ if(deferredPrompt){const p=deferredPrompt;deferredPrompt=null;p.prompt();try{await p.userChoice}catch(e){}return}
+ $('#insttxt').textContent=ios?'Tap the Share icon in Safari, then select "Add to Home Screen".':'Open your browser menu, then choose "Install app" or "Add to Home screen".';
+ close();open('#minst')};
+$('#dispb').onclick=()=>open('#mdisp');
 // Dock active section
 const tabs=$$('.dock a');tabs.forEach(a=>a.addEventListener('click',()=>tabs.forEach(x=>x.classList.toggle('on',x===a))));
 if('IntersectionObserver'in window){const io=new IntersectionObserver(es=>es.forEach(en=>{if(en.isIntersecting)tabs.forEach(a=>a.classList.toggle('on',a.getAttribute('href')==='#'+en.target.id))}),{rootMargin:'-35% 0px -55% 0px'});['cpr-s','dir-s','scam-s'].forEach(i=>io.observe($('#'+i)))}
