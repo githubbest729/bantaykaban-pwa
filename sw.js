@@ -1,5 +1,5 @@
 // BantayKaban service worker - scope /bantaykaban-pwa/
-const V='bantaykaban-v3',B='/bantaykaban-pwa/';
+const V='bantaykaban-v4',B='/bantaykaban-pwa/';
 const CORE=['','index.html','offline.html','css/styles.css','js/app.js','js/data.js','favicon.svg','manifest.webmanifest','icons/icon-192.png'].map(p=>B+p);
 self.addEventListener('install',e=>{e.waitUntil(caches.open(V).then(c=>Promise.all(CORE.map(u=>c.add(u).catch(()=>{})))));self.skipWaiting()});
 self.addEventListener('activate',e=>{e.waitUntil(caches.keys().then(k=>Promise.all(k.filter(x=>x!==V).map(x=>caches.delete(x)))).then(()=>self.clients.claim()))});
