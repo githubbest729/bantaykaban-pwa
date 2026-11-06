@@ -29,24 +29,26 @@
 <main>
 <header class="hero"><p class="eyebrow">PH Digital Banking Defense</p><h1>BantayKaban</h1><p class="m">Protektahan ang bangko, e-wallet at investments mo.</p></header>
 <div class="bento">
-<section class="card w2 gauge" id="cpr-s"><div class="gwrap"><svg class="ring" viewBox="0 0 100 100" aria-hidden="true"><circle class="rb" cx="50" cy="50" r="44"/><circle class="rf" id="rf" cx="50" cy="50" r="44"/></svg><div class="gt"><span class="pct" id="pct" aria-live="polite">0</span><span class="pc">%</span></div></div>
+<section class="card gauge" id="cpr-s"><div class="gwrap"><svg class="ring" viewBox="0 0 100 100" aria-hidden="true"><circle class="rb" cx="50" cy="50" r="44"/><circle class="rf" id="rf" cx="50" cy="50" r="44"/></svg><div class="gt"><span class="pct" id="pct" aria-live="polite">0</span><span class="pc">%</span></div></div>
 <div><p class="eyebrow">Vault Readiness</p><p class="gs" id="gs"></p><p class="m" id="prog"></p></div></section>
-<button class="card w2 sosc" id="lock"><svg class="ic"><use href="#i-shield"/></svg><span><b>Emergency Lockdown Protocol</b><small>Hacked or scammed? Tap for the 4 steps.</small></span></button>
-<section class="card w2"><h2>#CPR · Check · Protect · Report</h2><div id="cpr"></div><button class="ghost" id="reset">Reset checklist</button></section>
-<section class="card w2" id="scam-s"><h2>Phishing &amp; Fake Link Sandbox</h2><p class="m">Paste an SMS or link. Analyzed on your device only.</p>
+<button class="card sosc" id="lock"><svg class="ic"><use href="#i-shield"/></svg><span><b>Emergency Lockdown Protocol</b><small>Hacked or scammed? Tap for the 4 steps.</small></span></button>
+<section class="card"><h2>#CPR · Check · Protect · Report</h2><div id="cpr"></div><button class="ghost" id="reset">Reset checklist</button></section>
+<section class="card" id="scam-s"><h2>Phishing &amp; Fake Link Sandbox</h2><p class="m">Paste an SMS or link. Analyzed on your device only.</p>
 <input id="snd" type="text" inputmode="tel" placeholder="Sender number or name (optional)" aria-label="Sender"><textarea id="scam" rows="3" placeholder="Paste SMS text or link..." aria-label="Message to check"></textarea>
 <div class="row"><button class="p" id="chk">Scan</button><button class="ghost" id="clr">Clear</button></div><div id="verdict" aria-live="polite"></div></section>
-<section class="w2" id="dir-s"><h2 class="sh">Bank Vault</h2><input id="q" type="search" placeholder="Search BDO, GCash, Maya..." aria-label="Search institutions"><div class="bento inner" id="dir"></div></section>
+<section class="full" id="dir-s"><h2 class="sh">Bank Vault</h2><input id="q" type="search" placeholder="Search BDO, GCash, Maya..." aria-label="Search institutions"><div class="bento inner" id="dir"></div></section>
 <section class="card"><h2>Circulars</h2><div id="circ"></div></section>
 <section class="card"><h2>BSP Online Buddy</h2><div class="stack"><a class="btn p" href="https://www.m.me/BangkoSentralngPilipinas">Messenger</a><a class="btn tel" href="tel:+63253062584" data-n="(02) 5306-2584">(02) 5306-2584</a><a class="btn" href="mailto:consumeraffairs@bsp.gov.ph">Email</a><a class="btn d" href="https://cicc.gov.ph/report">Report to CICC</a></div></section>
-<section class="card w2" id="set-s"><h2>Display Engine</h2><div class="seg" role="group" aria-label="Display mode"><button data-mode="auto">Auto</button><button data-mode="light">Light</button><button data-mode="dark">Dark</button><button data-mode="sunlight">Sun</button><button data-mode="battery">AMOLED</button></div>
-<div class="row" style="margin-top:14px"><button class="p" id="share">Share</button><button id="sharel">Share lockdown steps</button><button id="a2hs">Install guide</button></div></section>
+
 </div>
 <p class="m foot">Informational only. Verify hotlines via official bank apps and the BSP directory.</p>
 </main>
-<nav class="dock" aria-label="Main"><a href="#cpr-s" class="on" aria-label="CPR Shield"><svg class="ic"><use href="#i-shield"/></svg><span>CPR</span></a><a href="#dir-s" aria-label="Bank Vault"><svg class="ic"><use href="#i-bank"/></svg><span>Banks</span></a><a href="#scam-s" aria-label="Scam Sandbox"><svg class="ic"><use href="#i-scan"/></svg><span>Scan</span></a><a href="#set-s" aria-label="Display Settings"><svg class="ic"><use href="#i-gear"/></svg><span>Display</span></a></nav>
+<nav class="dock" aria-label="Main"><a href="#cpr-s" class="on" aria-label="CPR Shield"><svg class="ic"><use href="#i-shield"/></svg><span>CPR</span></a><a href="#dir-s" aria-label="Bank Vault"><svg class="ic"><use href="#i-bank"/></svg><span>Banks</span></a><a href="#scam-s" aria-label="Scam Sandbox"><svg class="ic"><use href="#i-scan"/></svg><span>Scan</span></a><button id="dispb" aria-label="Display settings"><svg class="ic"><use href="#i-gear"/></svg><span>Display</span></button></nav>
 <div class="sheet full" id="mlock" role="dialog" aria-modal="true" aria-label="Emergency lockdown"><div><div class="sh-top"><h2>Emergency Lockdown</h2><button class="close" aria-label="Close">✕</button></div><p class="m">Act in order. Tap Copy to paste into chat or a note.</p><ol class="steps" id="steps"></ol><button class="p wide" id="copyall">Copy all steps</button></div></div>
-<div class="sheet" id="mhelp" role="dialog" aria-modal="true" aria-label="Install guide"><div><div class="sh-top"><h2>Install guide</h2><button class="close" aria-label="Close">✕</button></div><p id="hometext" class="m"></p><button class="p wide" id="install" hidden>Install app</button><button class="close wide">Done</button></div></div>
+<div class="sheet" id="mdisp" role="dialog" aria-modal="true" aria-label="Display and settings"><div><div class="sh-top"><h2>Display Engine</h2><button class="close" aria-label="Close">✕</button></div>
+<div class="seg" role="group" aria-label="Display mode"><button data-mode="auto">Auto</button><button data-mode="light">Light</button><button data-mode="dark">Dark</button><button data-mode="sunlight">Sun</button><button data-mode="battery">AMOLED</button></div>
+<h2 class="sub">Share</h2><div class="row"><button class="p" id="share">Share BantayKaban</button><button id="sharel">Share lockdown steps</button></div>
+<h2 class="sub">Install guide</h2><p id="hometext" class="m"></p><button class="p wide" id="install" hidden>Install app</button><button class="close wide">Done</button></div></div>
 <div class="sheet" id="mreset" role="dialog" aria-modal="true"><div><h2>Reset checklist?</h2><p class="m">All #CPR checks will be cleared.</p><div class="row"><button class="d" id="yes">Reset</button><button class="close">Cancel</button></div></div></div>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 <script src="js/data.js"></script><script src="js/app.js"></script></body></html>

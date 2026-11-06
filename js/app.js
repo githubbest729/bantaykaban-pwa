@@ -12,7 +12,7 @@ function toast(t){const e=$('#toast');e.textContent=t;e.classList.add('on');clea
 async function copy(text,msg){try{await navigator.clipboard.writeText(text)}catch(e){const a=document.createElement('textarea');a.value=text;document.body.appendChild(a);a.select();try{document.execCommand('copy')}catch(_){}a.remove()}toast(msg||'✓ Copied to clipboard')}
 // Universal dialer: mobile = native tel:, desktop = copy number + pill toast
 const coarse=matchMedia('(pointer:coarse)').matches;
-document.addEventListener('click',e=>{const a=e.target.closest('a[href^="tel:"]');if(!a)return;const n=a.dataset.n||a.getAttribute('href').slice(4);if(coarse)toast('Dialing '+n+'…');else{e.preventDefault();copy(n,'✓ Copied '+n+' to clipboard')}});
+document.addEventListener('click',e=>{const a=e.target.closest('a[href^="tel:"]');if(!a)return;const n=a.dataset.n||a.getAttribute('href').slice(4);if(coarse)toast('Dialing '+n+'…');else{e.preventDefault();copy(n,'Copied '+n+' to clipboard')}});
 // Dynamic island
 const isl=$('#isl'),ib=$('#islb'),id_=$('#isld');
 function island_(o){isl.classList.toggle('open',o);ib.setAttribute('aria-expanded',o);id_.hidden=!o}
@@ -29,7 +29,7 @@ function count(to){const f=shown;shown=to;if(still()){$('#pct').textContent=to;r
 function meter(){const p=Math.round(done.length/CPR.length*100),L=document.body.classList.contains('battery-saver-mode')?36:48;
 $('#rf').style.strokeDashoffset=CIRC*(1-p/100);$('#rf').style.setProperty('--rc',`hsl(${Math.round(38+(152-38)*p/100)} 85% ${L}%)`);count(p);
 $('#gs').textContent=p===100?'Vault Secured':p>=50?'Getting Stronger':'Exposed';$('#prog').textContent=done.length+' of '+CPR.length+' defenses active'}
-$('#cpr').innerHTML=CPR.map((c,i)=>`<label class="sw"><input type="checkbox" data-i="${i}" ${done.includes(i)?'checked':''}><span class="tr"><svg><use href="#i-check"/></svg></span><span><b>${c[0]}</b> · ${esc(c[1])}</span></label>`).join('');
+$('#cpr').innerHTML=CPR.map((c,i)=>`<label class="checklist-item"><input type="checkbox" data-i="${i}" ${done.includes(i)?'checked':''}><span class="tr"><svg><use href="#i-check"/></svg></span><span><b>${c[0]}</b> · ${esc(c[1])}</span></label>`).join('');
 $('#cpr').onchange=e=>{const l=e.target.closest('label');done=$$('#cpr input:checked').map(x=>+x.dataset.i);set('cpr',done);meter();if(e.target.checked){l.classList.remove('pulse');void l.offsetWidth;l.classList.add('pulse');if(navigator.vibrate)navigator.vibrate(12)}};
 meter();new MutationObserver(meter).observe(document.body,{attributes:true,attributeFilter:['class']});
 $('#reset').onclick=()=>open('#mreset');$('#yes').onclick=()=>{done=[];set('cpr',[]);$$('#cpr input').forEach(x=>x.checked=false);meter();close('#mreset');toast('✓ Checklist reset')};
@@ -37,11 +37,18 @@ $('#circ').innerHTML=CIRCULARS.map(c=>`<details><summary>${esc(c.t)}</summary><u
 // Bank action cards
 const META={'BDO Unibank':['#0b2a6b','Universal','https://www.bdo.com.ph'],'BPI':['#8c1230','Heritage','https://www.bpi.com.ph'],'Metrobank':['#1f4e9c','Universal','https://www.metrobank.com.ph'],'Landbank':['#0a7d3b','Government','https://www.landbank.com'],'UnionBank':['#e8731a','Universal','https://www.unionbankph.com'],'Security Bank':['#0087cf','Universal','https://www.securitybank.com'],'PNB':['#00529b','Universal','https://www.pnb.com.ph'],'GCash':['#0a5cff','Fast Pay','https://www.gcash.com'],'Maya':['#00c05a','Digital Bank','https://www.maya.ph'],'GoTyme Bank':['#0aa5c0','Digital','https://www.gotyme.com.ph'],'Tonik':['#6a1bd1','Digital','https://www.tonikbank.com'],'SeaBank':['#ff5a1f','Digital','https://www.seabank.ph'],'CIMB Bank PH':['#d81921','Digital','https://www.cimbbank.com.ph'],'Coins.ph':['#1a6bff','Crypto','https://coins.ph'],'PDAX':['#0d1b3d','Crypto','https://www.pdax.ph']};
 const glyph=t=>/crypto/i.test(t)?'coin':/e-wallet/i.test(t)?'wallet':/digital/i.test(t)?'digi':'bank';
+const EXTRA={'GCash':'Fast Pay','BPI':'Heritage'};
+// Verified freeze hotlines go here: 'Bank name':['+63...','pretty number']. Empty = steps + copy only.
+const HOT={};
 const script=n=>`URGENT: My ${n} account may be compromised. Please freeze my account/card now and log my fraud report.`;
 function draw(q){const r=INSTITUTIONS.filter(i=>(i.name+' '+i.type).toLowerCase().includes(q.trim().toLowerCase()));
-$('#dir').innerHTML=r.length?r.map((i,n)=>{const m=META[i.name]||['#1a5cff',i.type,DIRECTORY];return `<article class="bk" style="--c:${m[0]}"><span class="rib">${esc(m[1])}</span><div class="bh"><span class="gl"><svg class="ic"><use href="#i-${glyph(i.type)}"/></svg></span><div><h3>${esc(i.name)}</h3><small>${esc(i.type)}</small></div></div><p id="h${n}" hidden>${esc(i.how)}</p><div class="row"><button class="d" data-t="h${n}" data-s="${esc(i.name)}" aria-expanded="false">Emergency Freeze</button><a class="btn" href="${m[2]}" target="_blank" rel="noopener">Official site</a><button data-c="${esc(i.name)}">Copy</button></div></article>`}).join(''):`<p class="m w2">No institutions found. <a href="${DIRECTORY}">Check the BSP Consumer Assistance Directory</a></p>`}
+$('#dir').innerHTML=r.length?r.map((i,n)=>{const m=META[i.name]||['#1a5cff','',DIRECTORY],h=HOT[i.name],x=EXTRA[i.name];
+const fz=h?`<a class="btn d tel" href="tel:${h[0]}" data-n="${esc(h[1])}">Freeze Hotline</a>`:`<button class="d" data-t="h${n}" data-s="${esc(i.name)}" aria-expanded="false">Freeze Hotline</button>`;
+return `<article class="bank-card" style="--c:${m[0]}"><div class="bh"><span class="gl"><svg class="ic"><use href="#i-${glyph(i.type)}"/></svg></span><div><h3>${esc(i.name)}</h3><div class="pills"><span class="tag-pill">${esc(i.type)}</span>${x?`<span class="tag-pill">${x}</span>`:''}</div></div></div><p id="h${n}" hidden>${esc(i.how)}</p><div class="acts">${fz}<a class="btn pill" href="${m[2]}" target="_blank" rel="noopener">Official Site</a><button class="gh" data-c="${esc(i.name)}">Copy Details</button></div></article>`}).join(''):`<p class="m full">No institutions found. <a href="${DIRECTORY}">Check the BSP Consumer Assistance Directory</a></p>`}
 $('#q').oninput=e=>draw(e.target.value);draw('');
-$('#dir').onclick=e=>{const b=e.target.closest('[data-t]'),c=e.target.closest('[data-c]');if(b){const p=$('#'+b.dataset.t);p.hidden=!p.hidden;b.setAttribute('aria-expanded',!p.hidden);if(!p.hidden)copy(script(b.dataset.s),'✓ Freeze request copied. Call the number on your card.')}if(c)copy(script(c.dataset.c),'✓ Freeze request copied')};
+$('#dir').onclick=e=>{const b=e.target.closest('[data-t]'),c=e.target.closest('[data-c]');
+if(b){const p=$('#'+b.dataset.t);p.hidden=!p.hidden;b.setAttribute('aria-expanded',!p.hidden);if(!p.hidden)copy(script(b.dataset.s),'Freeze request copied. Call the number on your card.')}
+if(c)copy(c.dataset.c+' | '+script(c.dataset.c)+' | Verify: '+DIRECTORY,'Details copied')};
 // Phishing sandbox
 const RULES=[
 [/\b(otp|one[- ]time (pin|password)|verification code|mpin|pin\b|password|cvv|card number)/gi,3,'Asks for an OTP, PIN, password or card details. Banks never do.'],
@@ -85,10 +92,10 @@ $('#lock').onclick=()=>open('#mlock');$('#lock2').onclick=()=>{island_(false);op
 const ios=/iphone|ipad/i.test(navigator.userAgent);let dp=null;
 $('#hometext').textContent=ios?'Tap Share in Safari, then "Add to Home Screen".':'Use your browser menu, then "Install app" or "Add to Home screen".';
 addEventListener('beforeinstallprompt',e=>{e.preventDefault();dp=e;$('#install').hidden=false});
-$('#install').onclick=()=>{if(dp){dp.prompt();dp=null;$('#install').hidden=true}};$('#a2hs').onclick=()=>open('#mhelp');
+$('#install').onclick=()=>{if(dp){dp.prompt();dp=null;$('#install').hidden=true}};$('#dispb').onclick=()=>open('#mdisp');
 // Dock active section
 const tabs=$$('.dock a');tabs.forEach(a=>a.addEventListener('click',()=>tabs.forEach(x=>x.classList.toggle('on',x===a))));
-if('IntersectionObserver'in window){const io=new IntersectionObserver(es=>es.forEach(en=>{if(en.isIntersecting)tabs.forEach(a=>a.classList.toggle('on',a.getAttribute('href')==='#'+en.target.id))}),{rootMargin:'-35% 0px -55% 0px'});['cpr-s','dir-s','scam-s','set-s'].forEach(i=>io.observe($('#'+i)))}
+if('IntersectionObserver'in window){const io=new IntersectionObserver(es=>es.forEach(en=>{if(en.isIntersecting)tabs.forEach(a=>a.classList.toggle('on',a.getAttribute('href')==='#'+en.target.id))}),{rootMargin:'-35% 0px -55% 0px'});['cpr-s','dir-s','scam-s'].forEach(i=>io.observe($('#'+i)))}
 // Share
 async function share(text){const d={title:'BantayKaban',text,url:URL_};try{if(navigator.share)await navigator.share(d);else copy(text+' '+URL_,'✓ Link copied to clipboard')}catch(e){if(e.name!=='AbortError')toast('Could not share')}}
 $('#share').onclick=()=>share('Scam emergency? Call CICC 1326, then BSP Online Buddy (BOB). Check the BantayKaban checklist:');
